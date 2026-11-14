@@ -25,14 +25,15 @@ str(evictions)
 
 install.packages("RSocrata")
 
-library("RSocrata")
 
-df <- read.socrata(
-  "https://data.sf.gov/api/v3/views/vw6y-z8j6/query.json",
-  app_token = "YOURAPPTOKENHERE",
-  email     = "user@example.com",
-  password  = "fakepassword"
-)
+library(jsonlite)
+
+url <- "https://data.sfgov.org/resource/vw6y-z8j6.json?$limit=50000"
+
+df <- fromJSON(url)
+
+View(df)
+
 ```
 
 ## Including Plots
@@ -44,3 +45,21 @@ You can also embed plots, for example:
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+library(dplyr)
+
+cases <- df %>%
+  mutate(
+    opened = as.POSIXct(requested_datetime,
+                        format = "%Y-%m-%dT%H:%M:%OS"),
+    closed = as.POSIXct(closed_date,
+                        format = "%Y-%m-%dT%H:%M:%OS"),
+    hours_to_close = as.numeric(
+      difftime(closed, opened, units = "hours")
+    )
+  )
+
+summary(cases$hours_to_close)
+```
+
