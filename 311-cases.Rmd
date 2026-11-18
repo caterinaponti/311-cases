@@ -71,7 +71,13 @@ summary(cases$hours_to_close)
 # Remove these observations because closure time cannot be negative.
 # Also remove cases with missing closure times.
 # Keep the original dataset unchanged by creating a cleaned dataset.
+# DESCRIPTIVE STATISTICS: Outcome variable (Y)
+# Calculate the mean, median, standard deviation,
+# minimum, maximum, and quartiles of closure time.
 
+summary(cases_clean$hours_to_close)
+
+sd(cases_clean$hours_to_close, na.rm = TRUE)
 cases_clean <- cases[
   !is.na(cases$hours_to_close) &
   cases$hours_to_close >= 0,
@@ -85,3 +91,56 @@ nrow(cases_clean)
 
 
 ```
+
+```{r}
+
+# BOXPLOT: 311 Case Closure Times by Neighborhood
+# Compare closure times across San Francisco neighborhoods.
+# Hide outlier points and zoom in on the central 95% of closure times.
+# Order neighborhoods by median closure time.
+
+# Remove observations with missing neighborhood names
+plot_data <- subset(cases_clean, !is.na(analysis_neighborhood))
+
+# Calculate median closure time for each neighborhood
+medians <- tapply(
+  plot_data$hours_to_close,
+  plot_data$analysis_neighborhood,
+  median
+)
+
+# Order neighborhoods by median closure time
+plot_data$analysis_neighborhood <- factor(
+  plot_data$analysis_neighborhood,
+  levels = names(sort(medians))
+)
+
+# Calculate the 95th percentile for a cleaner display
+upper_limit <- quantile(
+  plot_data$hours_to_close,
+  0.95,
+  na.rm = TRUE
+)
+
+# Increase left margin to fit neighborhood names
+par(mar = c(5, 15, 4, 2))
+
+# Create horizontal boxplot
+boxplot(
+  hours_to_close ~ analysis_neighborhood,
+  data = plot_data,
+  horizontal = TRUE,
+  outline = FALSE,
+  ylim = c(0, upper_limit),
+  col = "lightblue",
+  border = "steelblue",
+  las = 1,
+  cex.axis = 0.7,
+  main = "311 Case Closure Times by Neighborhood",
+  xlab = "Hours to Close",
+  ylab = ""
+)
+
+```
+
+
