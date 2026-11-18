@@ -63,3 +63,25 @@ cases <- df %>%
 summary(cases$hours_to_close)
 ```
 
+
+```{r}
+# DATA CLEANING: Remove invalid closure times
+
+# We found 9 cases with negative closure times (closed before opened).
+# Remove these observations because closure time cannot be negative.
+# Also remove cases with missing closure times.
+# Keep the original dataset unchanged by creating a cleaned dataset.
+
+cases_clean <- cases[
+  !is.na(cases$hours_to_close) &
+  cases$hours_to_close >= 0,
+]
+
+# Verify that no negative closure times remain
+sum(cases_clean$hours_to_close < 0)
+
+# Check the number of observations remaining after cleaning
+nrow(cases_clean)
+
+
+```
